@@ -4,7 +4,7 @@ HISTSIZE=0
 set +o history
 
 #
-# Do initial setup for fresh system
+# Defaults
 #
 # OS: debian 11
 
@@ -26,24 +26,43 @@ CERTBOT_EMAIL=$4
 # generate a password for creating user, etc
 PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 63)
 
+# TODO set hosts shit
+echo "$HOSTNAME" > /etc/hostname
+
 # create a user
+echo "Creating user $HOSTNAME ..."
 adduser "$HOSTNAME" --gecos "" --disabled-password
+
+echo "Adding $HOSTNAME to group sudo ..."
 usermod -aG sudo "$HOSTNAME"
 echo "$HOSTNAME":"$PASSWORD" | chpasswd
 
-# make password available(!)
+echo "Populating $HOSTNAME ssh keys and auth files ..."
+# make password available to new user(!)
 echo "$PASSWORD" > /home/"$HOSTNAME"/local_auth
 
-# do ssh key shit here
+# Transplant sshkey for new user
+mkdir /home/"$HOSTNAME"/.ssh
+cp -a /root/.ssh/. /home/"$HOSTNAME"/.ssh/
+
+# Make sure new user is the owner of stuff we transplanted
+chown -R "$HOSTNAME":"$HOSTNAME" /home/"$HOSTNAME"/.ssh/
 
 # generate rsa key pair and ed25519 key pairs
 su "$HOSTNAME" bash -c 'ssh-keygen -t rsa -b 4096 -o -a 100 -f ~/.ssh/id_rsa -N ""'
 su "$HOSTNAME" bash -c 'ssh-keygen -t ed25519 -a 100 -f ~/.ssh/id_ed25519 -N ""'
 
-echo "SETUP UP SSH NOW OK THANKS"
 
-file=/etc/ssh/sshd_config
-sed -i 's/#Port .*/Port '"$SSH_PORT"'/' $file
-sed -i 's/#AddressFamily .*/#AddressFamily inet/' $file
-sed -i 's/PermitRootLogin .*/PermitRootLogin no/' $file
-sed -i 's/#PasswordAuthentication .*/PasswordAuthentication no/' $file
+# Activate firewall
+. ufw.sh
+
+# Lock down OpenSSH
+. openssh.sh "$SSH_PORT" "$HOSTNAME"
+
+read -p "Web dev, etc?? " -n 1 -r
+echo    # (optional) move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  . web.sh
+  . php.sh
+fi
