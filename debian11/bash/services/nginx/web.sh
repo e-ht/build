@@ -22,7 +22,7 @@ service nginx start
 
 # Request SSL
 # Try for --hsts and --uir even though they aren't currently supported with the nginx module
-echo "Setting up SSL..."
-certbot -n --agree-tos --email "$CERTBOT_EMAIL" --authenticator webroot -w /var/www/html/ --installer nginx --redirect --hsts --uir --domain "$FQDN"
+echo "Setting up SSL... ?"
+#certbot -n --agree-tos --email "$CERTBOT_EMAIL" --authenticator webroot -w /var/www/html/ --installer nginx --redirect --hsts --uir --domain "$FQDN"
 
-service nginx reload
+#service nginx reload
