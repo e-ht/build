@@ -54,15 +54,15 @@ su "$HOSTNAME" bash -c 'ssh-keygen -t ed25519 -a 100 -f ~/.ssh/id_ed25519 -N ""'
 
 
 # Activate firewall
-. ufw.sh
+. services/ufw.sh
 
 # Lock down OpenSSH
-. openssh.sh "$SSH_PORT" "$HOSTNAME"
+. services/openssh.sh "$SSH_PORT" "$HOSTNAME"
 
-read -p "Web dev, etc?? " -n 1 -r
-echo    # (optional) move to a new line
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-  . web.sh
-  . php.sh
-fi
+#read -p "Web dev, etc?? " -n 1 -r
+#echo    # (optional) move to a new line
+#if [[ $REPLY =~ ^[Yy]$ ]]
+#then
+#  . web.sh
+#  . php.sh
+#fi
