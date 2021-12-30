@@ -44,6 +44,9 @@ service nginx start
 # Try for --hsts and --uir even though they aren't currently supported with the nginx module
 echo "Setting up SSL ..."
 certbot -n --agree-tos --email "$CERTBOT_EMAIL" --authenticator webroot -w /var/www/html/ --installer nginx --redirect --hsts --uir --domain "$FQDN"
-
 service nginx reload
+echo "Certs active ...";
+echo "Settings certs to auto-renew ...";
+(crontab -l ; echo "0 12 * * * /usr/bin/certbot renew --quiet") | crontab -
+
 echo "Done ...?"
