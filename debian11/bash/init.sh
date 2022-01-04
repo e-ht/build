@@ -26,8 +26,9 @@ CERTBOT_EMAIL=$4
 # generate a password for creating user, etc
 PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 63)
 
-# TODO set hosts shit
+# set hosts shit
 echo "$HOSTNAME" > /etc/hostname
+echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
 
 # create a user
 echo "Creating user $HOSTNAME ..."
@@ -41,22 +42,21 @@ echo "Populating $HOSTNAME ssh keys and auth files ..."
 # make password available to new user(!)
 echo "$PASSWORD" > /home/"$HOSTNAME"/local_auth
 
-# Transplant sshkey for new user
+# transplant sshkey for new user
 mkdir /home/"$HOSTNAME"/.ssh
 cp -a /root/.ssh/. /home/"$HOSTNAME"/.ssh/
 
-# Make sure new user is the owner of stuff we transplanted
+# make sure new user is the owner of stuff we transplanted
 chown -R "$HOSTNAME":"$HOSTNAME" /home/"$HOSTNAME"/.ssh/
 
 # generate rsa key pair and ed25519 key pairs
 su "$HOSTNAME" bash -c 'ssh-keygen -t rsa -b 4096 -o -a 100 -f ~/.ssh/id_rsa -N ""'
 su "$HOSTNAME" bash -c 'ssh-keygen -t ed25519 -a 100 -f ~/.ssh/id_ed25519 -N ""'
 
-
-# Activate firewall
+# activate firewall
 . services/ufw.sh
 
-# Lock down OpenSSH
+# lock down OpenSSH
 . services/openssh.sh "$SSH_PORT" "$HOSTNAME"
 
 #read -p "Web dev, etc?? " -n 1 -r

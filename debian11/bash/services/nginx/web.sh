@@ -6,7 +6,6 @@ FQDN=$1
 CERTBOT_EMAIL=$2
 
 echo "SETUP UP WEB NOW OK THANKS"
-# TODO set rlimits in nginx conf as well as for base system
 # TODO set file paths as variables in head of file?
 
 apt install -y nginx certbot python3-certbot-nginx
